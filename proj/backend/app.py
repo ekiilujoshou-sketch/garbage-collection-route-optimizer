@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import Dict, Tuple
 
-from flask import Flask, jsonify, request
+import os
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 from algorithms import (
@@ -19,7 +20,9 @@ from algorithms import (
     tsp_approx_route,
 )
 
-app = Flask(__name__)
+# Point Flask to the frontend folder (one level up from the backend folder)
+FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
+app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
 CORS(app)
 
 
@@ -120,6 +123,11 @@ def _run_optimization(payload):
         "method": method,
         "priority_bins": priority_bins,
     }
+
+
+@app.route("/", methods=["GET"])
+def home():
+    return send_from_directory(app.static_folder, "index.html")
 
 
 @app.route("/health", methods=["GET"])
